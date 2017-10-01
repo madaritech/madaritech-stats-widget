@@ -1,10 +1,19 @@
 jQuery(document).ready(function($) {
 
-	$( "#stat-widget" ).replaceWith( '<div id="stat-widget">Updating...</div>' );
+	$( "#stats-widget" ).replaceWith( '<div id="stats-widget">Loading...</div>' );
 
-    setInterval(function() {
-   
-        // Fire our ajax request!
+    do_ajax_call();
+    setInterval(loop_ajax_call, 1000 * 5 * wpApiSettings.refresh_time);
+
+    var active = 0;
+
+    function loop_ajax_call() {
+    	active = $( "#stats-widget" ).accordion( "option", "active" );
+		do_ajax_call();
+    };
+
+    function do_ajax_call() {
+
         $.ajax({
             method: 'GET',
             url: wpApiSettings.root + 'md-site-stats-widget/v1/stats', 
@@ -14,7 +23,8 @@ jQuery(document).ready(function($) {
             },
 
             success : function( response ) {
-            	var res = '<div id="stat-widget">';
+            	var res = '<div id="stats-widget">';
+
             	$.each(response.sites, function(key, item) { 
             		table_general = '<table><tr><td>Users</td><td>Posts</td><td>Comments</td><td>Terms</td><td>Links</td></tr><tr><td>' + item.users + '</td><td>' + item.posts + '</td><td>' + item.comments + '</td><td>' + item.terms + '</td><td>' + item.links + '</td></tr></table>';
                     table_post = '<table><tr><em>Posts Details<\em></th></tr>' +
@@ -22,19 +32,20 @@ jQuery(document).ready(function($) {
                                  '<tr><td>draft</td><td>' + item.post_draft + '</td><td>pending</td><td>' + item.post_pending + '</td></tr>' +
                                  '<tr><td>private</td><td>' + item.post_private + '</td><td>trash</td><td>' + item.post_trash + '</td></tr>' +
                                  '<tr><td>auto-draft</td><td>' + item.post_auto_draft + '</td><td>inherit</td><td>' + item.post_inherit + '</td><tr></table>';
-					res = res + '<strong>' + item.blogname + '</strong><hr>' + table_general + table_post; //<div><span style="font-style: italic">Users:</span> ' + item.users + '</div><br>';
+					res = res + '<h3><a href="">' + item.blogname + '</a></h3><div><hr>' + table_general + table_post + '</div>';
             	});
+
             	res = res + '</div>';
-                //$( "#stat-widget" ).replaceWith( '<div id="stat-widget">Sites ' + response.blog_count + '<hr></div>' );
-                $( "#stat-widget" ).replaceWith( res );
-                console.log(res);
+            	js = '<script id="accordion">jQuery("#stats-widget").accordion({active: ' + active + '})</script>';
+            	
+            	$( "#stats-widget" ).replaceWith( res );
+                $( "#accordion" ).replaceWith( js );
+                
             },
             
             fail : function( response ) {
-                $( "#stat-widget" ).replaceWith( '<div id="stat-widget">Data not available</div>' );
+                $( "#stats-widget" ).replaceWith( '<div id="stats-widget">Data not available</div>' );
             }
         });
-
-    }, 1000 * 5 * wpApiSettings.refresh_time);
-
+    }
 });

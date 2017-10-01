@@ -55,10 +55,6 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     {
         $this->plugin_name = $plugin_name;
         $this->version     = $version;
-
-        /*$sites = get_sites();
-        var_dump($sites);
-        exit();*/
     }
 
     /**
@@ -108,7 +104,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
             
             //Blog name
             $blog_details = get_blog_details($id);
-            $blogname = $blog_details->blogname; ///SErve???
+            $blogname = $blog_details->blogname; ///delete
 
             //Blog posts
             /*$posts = $wpdb->get_var("SELECT COUNT(*) FROM wp_{$ids}posts WHERE post_status='publish' and post_type='post'");
@@ -146,9 +142,9 @@ class Md_Site_Stats_Widget_Custom_Endpoints
 
             //Recording site stats
             $site_stats[$id] = [
-                'url' => $url, 
-                'users' => $users, 
-                'blogname' => $blogname, 
+                'url' => $url,
+                'users' => $users,
+                'blogname' => $blogname,
                 'posts' => $post_total,
                 'post_publish' => $post_count['publish'],
                 'post_future' => $post_count['future'],
@@ -164,25 +160,13 @@ class Md_Site_Stats_Widget_Custom_Endpoints
             ];
         }
 
-        //$blog_users = get_users( 'blog_id=2&orderby=nicename' );
-        
-        $blog_count = get_blog_count(); //The number of active sites on your installation
-
+        $blog_count = get_blog_count(); //The number of active sites
         $stats = array( 'blog_count' => $blog_count, 'sites' => $site_stats);
 
-        /*if (empty($stats)) {
-            return new WP_Error( 'awesome_no_author', 'Invalid author', array( 'status' => 404 ) );
-        }*/
+        if (empty($stats)) {
+            return new WP_Error('error', 'Statistics not available', array( 'status' => 404 ));
+        }
 
         return $stats;
-
-        /*if (empty($stats)) {
-            return null;
-        }*/
-        //.$posts_stats['publish']
-        //return $stats;
-        //return str_shuffle('pollo'.$posts_stats->publish);
-
-        //return $sites;
     }
 }

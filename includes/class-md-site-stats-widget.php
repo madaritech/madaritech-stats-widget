@@ -169,9 +169,6 @@ class Md_Site_Stats_Widget
 
         $this->loader->add_action('widgets_init', $plugin_widget, 'register_widget');
         $this->loader->add_action('rest_api_init', $plugin_endpoints, 'register_route');
-        /*wp_register_script('wpb-custom-js', plugins_url('/accordion.js', __FILE__ ), array('jquery-ui-accordion'), '', true);
-		wp_enqueue_script('wpb-custom-js');*/
-        //$this->loader->add_action('wp_ajax_update_stats', $plugin_widget, 'show_stats');
     }
 
     /**
