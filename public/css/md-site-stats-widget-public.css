@@ -2,3 +2,14 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+
+ #stats-widget h3 {
+ 	font-size: 1.2em;
+ 	font-weight: 600;
+ 	padding: 0;
+ }
+#stats-widget h3 a {
+    text-decoration: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+}

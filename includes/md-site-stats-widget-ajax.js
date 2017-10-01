@@ -3,7 +3,7 @@ jQuery(document).ready(function($) {
 	$( "#stats-widget" ).replaceWith( '<div id="stats-widget">Loading...</div>' );
 
     do_ajax_call();
-    setInterval(loop_ajax_call, 1000 * 5 * wpApiSettings.refresh_time);
+    setInterval(loop_ajax_call, 1000 * 60 * wpApiSettings.refresh_time);
 
     var active = 0;
 
@@ -37,7 +37,7 @@ jQuery(document).ready(function($) {
 
             	res = res + '</div>';
             	js = '<script id="accordion">jQuery("#stats-widget").accordion({active: ' + active + '})</script>';
-            	
+
             	$( "#stats-widget" ).replaceWith( res );
                 $( "#accordion" ).replaceWith( js );
                 
