@@ -104,12 +104,9 @@ class Md_Site_Stats_Widget_Custom_Endpoints
             
             //Blog name
             $blog_details = get_blog_details($id);
-            $blogname = $blog_details->blogname; ///delete
+            $blogname = $blog_details->blogname;
 
             //Blog posts
-            /*$posts = $wpdb->get_var("SELECT COUNT(*) FROM wp_{$ids}posts WHERE post_status='publish' and post_type='post'");
-            $posts = (!isset($posts) || empty($posts)) ? '0' : $posts;*/
-
             $posts= $wpdb->get_results("SELECT count(*) as post_number, post_status FROM wp_{$ids}posts where post_type='post' group by post_status");
 
             $post_count['publish'] = 0;
