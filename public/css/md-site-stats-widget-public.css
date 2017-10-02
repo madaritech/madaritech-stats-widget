@@ -7,10 +7,11 @@
  	font-size: 1.2em;
  	font-weight: 600;
  	padding: 0;
+ 	margin: 0.2em 0.2em;
  }
  #stats-widget td {
  	font-size: 0.8em;
- 	padding: 0;
+ 	padding: 0.4em;
  }
 #stats-widget h3 a {
     text-decoration: none !important;
