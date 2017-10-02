@@ -163,9 +163,12 @@ class Md_Site_Stats_Widget_Custom_Endpoints
         $stats = array( 'blog_count' => $blog_count, 'sites' => $site_stats);
 
         if (empty($stats)) {
-            return new WP_Error('error', 'Statistics not available', array( 'status' => 404 ));
+            $err = new WP_Error('error', 'Statistics not available', array( 'status' => 404 ));
+            $response = rest_ensure_response($err);
+            return $response;
         }
 
-        return $stats;
+        $response = rest_ensure_response($stats);
+        return $response;
     }
 }
