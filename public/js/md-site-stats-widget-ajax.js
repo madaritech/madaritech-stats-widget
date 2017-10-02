@@ -40,11 +40,11 @@ jQuery(document).ready(function($) {
 
             	$( "#stats-widget" ).replaceWith( res );
                 $( "#accordion" ).replaceWith( js );
-                
             },
             
-            fail : function( response ) {
-                $( "#stats-widget" ).replaceWith( '<div id="stats-widget">Data not available</div>' );
+            error : function( response ) {
+                var res = eval("(" + response.responseText + ")");
+                $( "#stats-widget" ).replaceWith( '<div id="stats-widget">' + res.message + '</div>' );
             }
         });
     }
