@@ -109,6 +109,11 @@ class Md_Site_Stats_Widget
         require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-md-site-stats-widget-loader.php';
 
         /**
+         * The class responsible for the log service.
+         */
+        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-md-site-stats-widget-log-service.php';
+        
+        /**
          * The class responsible for defining internationalization functionality
          * of the plugin.
          */

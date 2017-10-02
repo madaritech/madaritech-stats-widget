@@ -43,6 +43,15 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      */
     private $version;
 
+    /*
+    * A {@link Md_Site_Stats_Widget_Log_Service} instance.
+    *
+    * @since 1.0.0
+    * @access private
+    * @var \Md_Site_Stats_Widget_Log_Service $log A {@link Md_Site_Stats_Widget_Log_Service_Log_Service} instance.
+    */
+    private $log;
+
     /**
      * Initialize the class and set its properties.
      *
@@ -55,6 +64,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     {
         $this->plugin_name = $plugin_name;
         $this->version     = $version;
+        $this->log = Md_Site_Stats_Widget_Log_Service::create('Md_Site_Stats_Widget_Custom_Endpoints');
     }
 
     /**
@@ -85,6 +95,10 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      */
     public function statistics(WP_REST_Request $request)
     {
+        if (Md_Site_Stats_Widget_Log_Service::is_enabled()) {
+            $this->log->trace("Retrieving statistics [ request :: " .var_export($request, true)." ]...");
+        }
+        
         global $wpdb;
         $site_stats = array();
 
@@ -165,10 +179,20 @@ class Md_Site_Stats_Widget_Custom_Endpoints
         if (empty($stats)) {
             $err = new WP_Error('error', 'Statistics not available', array( 'status' => 404 ));
             $response = rest_ensure_response($err);
+            
+            if (Md_Site_Stats_Widget_Log_Service::is_enabled()) {
+                $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
+            }
+
             return $response;
         }
 
         $response = rest_ensure_response($stats);
+        
+        if (Md_Site_Stats_Widget_Log_Service::is_enabled()) {
+            $this->log->trace("Statistics retrieved [ response :: " .var_export($response, true)." ]...");
+        }
+        
         return $response;
     }
 }
