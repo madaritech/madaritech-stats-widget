@@ -97,7 +97,8 @@ class Md_Site_Stats_Widget_Custom_Endpoints
             
             //Blog id
             $id = (is_multisite()) ? $value->id : 1;
-            $ids = ($id == 1) ? '' : $id.'_';
+
+            $prefix = (is_multisite()) ? $wpdb->get_blog_prefix($id) : $wpdb->get_blog_prefix();
 
             // Blog users
             $blog_users = (is_multisite()) ? get_users("blog_id=$id") : get_users();
@@ -107,7 +108,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
             $blogname = (is_multisite()) ? get_blog_details($id)->blogname : get_bloginfo('name');
             
             //Blog posts
-            $posts= $wpdb->get_results("SELECT count(*) as post_number, post_status FROM wp_{$ids}posts where post_type='post' group by post_status");
+            $posts= $wpdb->get_results("SELECT count(*) as post_number, post_status FROM {$prefix}posts where post_type='post' group by post_status");
 
             $post_count['publish'] = 0;
             $post_count['future'] = 0;
@@ -126,15 +127,15 @@ class Md_Site_Stats_Widget_Custom_Endpoints
 
 
             //Blog comments
-            $comments = $wpdb->get_var("SELECT COUNT(*) FROM wp_{$ids}comments");
+            $comments = $wpdb->get_var("SELECT COUNT(*) FROM {$prefix}comments");
             $comments = (!isset($comments) || empty($comments)) ? '0' : $comments;
 
             //Blog terms
-            $terms = $wpdb->get_var("SELECT COUNT(*) FROM wp_{$ids}terms");
+            $terms = $wpdb->get_var("SELECT COUNT(*) FROM {$prefix}terms");
             $terms = (!isset($terms) || empty($terms)) ? '0' : $terms;
 
             //Blog links
-            $links = $wpdb->get_var("SELECT COUNT(*) FROM wp_{$ids}links");
+            $links = $wpdb->get_var("SELECT COUNT(*) FROM {$prefix}links");
             $links = (!isset($links) || empty($links)) ? '0' : $links;
 
             //Recording site stats
