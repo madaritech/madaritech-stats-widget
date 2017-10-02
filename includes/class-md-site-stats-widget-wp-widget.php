@@ -56,7 +56,7 @@ class Md_Site_Stats_Widget_Wp_Widget extends WP_Widget
             $instance['refresh'] = '1';
         }
 
-        wp_enqueue_script('stats_widget', plugin_dir_url(__FILE__) . '/md-site-stats-widget-ajax.js', array( 'jquery', 'jquery-ui-accordion' ), '', true);
+        wp_enqueue_script('stats_widget', plugin_dir_url(__FILE__) . '../public/js/md-site-stats-widget-ajax.js', array( 'jquery', 'jquery-ui-accordion' ), '', true);
 
         wp_localize_script('stats_widget', 'wpApiSettings', array(
                                                                 'root' => esc_url_raw(rest_url()),

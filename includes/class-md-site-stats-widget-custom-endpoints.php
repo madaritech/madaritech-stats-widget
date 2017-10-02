@@ -87,25 +87,25 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     {
         global $wpdb;
         $site_stats = array();
-        $sites = get_sites();
+
+        $sites = (is_multisite()) ? get_sites() : array(['id' => '1']);
 
         foreach ($sites as $key => $value) {
             
             //Blog url
-            $url = $value->domain.$value->path;
+            $url = (is_multisite()) ? $value->domain.$value->path : site_url();
             
             //Blog id
             $id = $value->id;
             $ids = ($id == 1) ? '' : $id.'_';
 
             // Blog users
-            $blog_users = get_users("blog_id=$id");
+            $blog_users = (is_multisite()) ? get_users("blog_id=$id") : get_users();
             $users = count($blog_users);
             
             //Blog name
-            $blog_details = get_blog_details($id);
-            $blogname = $blog_details->blogname;
-
+            $blogname = (is_multisite()) ? get_blog_details($id)->blogname : get_bloginfo('name');
+            
             //Blog posts
             $posts= $wpdb->get_results("SELECT count(*) as post_number, post_status FROM wp_{$ids}posts where post_type='post' group by post_status");
 
@@ -157,7 +157,8 @@ class Md_Site_Stats_Widget_Custom_Endpoints
             ];
         }
 
-        $blog_count = get_blog_count(); //The number of active sites
+        $blog_count = (is_multisite()) ? get_blog_count() : 1; //The number of active sites
+        
         $stats = array( 'blog_count' => $blog_count, 'sites' => $site_stats);
 
         if (empty($stats)) {
