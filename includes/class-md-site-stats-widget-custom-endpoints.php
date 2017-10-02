@@ -88,7 +88,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
         global $wpdb;
         $site_stats = array();
 
-        $sites = (is_multisite()) ? get_sites() : array(['id' => '1']);
+        $sites = (is_multisite()) ? get_sites() : array(true);
 
         foreach ($sites as $key => $value) {
             
@@ -96,7 +96,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
             $url = (is_multisite()) ? $value->domain.$value->path : site_url();
             
             //Blog id
-            $id = $value->id;
+            $id = (is_multisite()) ? $value->id : 1;
             $ids = ($id == 1) ? '' : $id.'_';
 
             // Blog users
@@ -158,7 +158,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
         }
 
         $blog_count = (is_multisite()) ? get_blog_count() : 1; //The number of active sites
-        
+
         $stats = array( 'blog_count' => $blog_count, 'sites' => $site_stats);
 
         if (empty($stats)) {
