@@ -43,7 +43,7 @@ jQuery(document).ready(function($) {
             },
             
             error : function( response ) {
-                var res = eval("(" + response.responseText + ")");
+                var res = JSON.parse(response.responseText);
                 $( "#stats-widget" ).replaceWith( '<div id="stats-widget">' + res.message + '</div>' );
             }
         });

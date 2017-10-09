@@ -1,5 +1,4 @@
-<?php 
-
+<?php
 /**
  * The file that defines the core wp widget class
  *
@@ -16,7 +15,7 @@
 /**
  * The core wp widget class.
  *
- * This is used to define the widget.
+ * This is used to define the widget. This widget let shows in the frontend statisctics about single site or multisite WordPress installation. User can select a refresh time (some minutes to 1 hour) by wich the statistics data will be retrieved from the server. The statistisc data shows, for each site, the number of users, comments and posts. About posts, a detailed table shows the amount of posts for each type (publish, draft, etc.)
  *
  * @since      1.0.0
  * @package    Md_Site_Stats_Widget
@@ -35,7 +34,9 @@ class Md_Site_Stats_Widget_Wp_Widget extends WP_Widget
     private $log;
 
     /**
-     * Sets up the widgets name etc
+     * Sets up
+     *
+     * Sets up the widgets classname and description, creates instance for the widget and creates instance for the logger.
      */
     public function __construct()
     {
@@ -51,8 +52,8 @@ class Md_Site_Stats_Widget_Wp_Widget extends WP_Widget
     /**
      * Outputs the content of the widget
      *
-     * @param array $args
-     * @param array $instance
+     * @param array $args Widget standard args
+     * @param array $instance Widget options
      */
     public function widget($args, $instance)
     {
@@ -99,20 +100,19 @@ class Md_Site_Stats_Widget_Wp_Widget extends WP_Widget
         }
 
         // outputs the options form on admin
-        $title = ! empty($instance['title']) ? $instance['title'] : esc_html__('Madaritech Stats', 'md_site_stats_widget');
-        $refresh = ! empty($instance['refresh']) ? $instance['refresh'] : esc_html__('1', 'md_site_stats_widget'); ?>
+        $title = ! empty($instance['title']) ? $instance['title'] : __('Madaritech Stats', 'md_site_stats_widget');
+        $refresh = ! empty($instance['refresh']) ? $instance['refresh'] : __('1', 'md_site_stats_widget'); ?>
         <p>
-        <label for="<?php echo esc_attr($this->get_field_id('title')); ?>"><?php esc_attr_e('Title:', 'md_site_stats_widget'); ?></label> 
-        <input class="widefat" id="<?php echo esc_attr($this->get_field_id('title')); ?>" name="<?php echo esc_attr($this->get_field_name('title')); ?>" type="text" value="<?php echo esc_attr($title); ?>">
+        <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:', 'md_site_stats_widget'); ?></label> 
+        <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>">
 
-        <label for="<?php echo esc_attr($this->get_field_id('refresh')); ?>"><?php esc_attr_e('Refresh time:', 'md_site_stats_widget'); ?></label> 
-        <select class="widefat" id="<?php echo esc_attr($this->get_field_id('refresh')); ?>" name="<?php echo esc_attr($this->get_field_name('refresh')); ?>">
-        <?php $refresh=esc_attr($refresh); ?>
-            <option value="1" <?php echo ($refresh=='1')?'selected':''; ?>>1 Minute</option>
-            <option value="5" <?php echo ($refresh=='5')?'selected':''; ?>>5 Minutes</option>
-            <option value="15" <?php echo ($refresh=='15')?'selected':''; ?>>15 Minutes</option>
-            <option value="30" <?php echo ($refresh=='30')?'selected':''; ?>>30 Minutes</option>
-            <option value="60" <?php echo ($refresh=='60')?'selected':''; ?>>60 Minutes</option>
+        <label for="<?php echo $this->get_field_id('refresh'); ?>"><?php _e('Refresh time:', 'md_site_stats_widget'); ?></label> 
+        <select class="widefat" id="<?php echo $this->get_field_id('refresh'); ?>" name="<?php echo $this->get_field_name('refresh'); ?>">
+            <option value="1" <?php selected($refresh, 1); ?>>1 Minute</option>
+            <option value="5" <?php selected($refresh, 5); ?>>5 Minutes</option>
+            <option value="15" <?php selected($refresh, 15); ?>>15 Minutes</option>
+            <option value="30" <?php selected($refresh, 30); ?>>30 Minutes</option>
+            <option value="60" <?php selected($refresh, 60); ?>>60 Minutes</option>
         </select>
         </p>
         <?php
