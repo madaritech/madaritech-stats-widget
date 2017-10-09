@@ -273,16 +273,14 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      * @access private
      * @param int $post_id The post id.
      */
-    private function refresh_post_statistics($post_id)
+    public function refresh_post_statistics($post_id)
     {
         $id = get_current_blog_id();
-        $pt = wp_get_post_type($post_id);
-        if (in_array($pt, array('publish','future','draft','pending','private','trash','auto-draft','inherit'))) {
-            if (is_multisite()) {
-                delete_site_transient('post_statistics'.$id);
-            } else {
-                delete_transient('post_statistics'.$id);
-            }
+        $pt = get_post_type($post_id);
+        if (is_multisite()) {
+            delete_site_transient('post_statistics'.$id);
+        } else {
+            delete_transient('post_statistics'.$id);
         }
     }
 
@@ -294,16 +292,14 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      * @access private
      * @param int $post_id The post id.
      */
-    private function refresh_comment_statistics()
+    public function refresh_comment_statistics()
     {
         $id = get_current_blog_id();
-        
-        if (in_array($pt, array('publish','future','draft','pending','private','trash','auto-draft','inherit'))) {
-            if (is_multisite()) {
-                delete_site_transient('comments_statistics'.$id);
-            } else {
-                delete_transient('comments_statistics'.$id);
-            }
+
+        if (is_multisite()) {
+            delete_site_transient('comments_statistics'.$id);
+        } else {
+            delete_transient('comments_statistics'.$id);
         }
     }
 }
