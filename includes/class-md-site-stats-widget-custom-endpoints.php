@@ -271,17 +271,29 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      * @since 1.0.0
      *
      * @access private
+     * @param string $key The key used to identify the transient.
+     */
+    private function refresh_statistics($key)
+    {
+        $id = get_current_blog_id();
+        if (is_multisite()) {
+            delete_site_transient($key.$id);
+        } else {
+            delete_transient($key.$id);
+        }
+    }
+
+    /**
+     * Delete the transient on post statistics refresh
+     *
+     * @since 1.0.0
+     *
+     * @access private
      * @param int $post_id The post id.
      */
     public function refresh_post_statistics($post_id)
     {
-        $id = get_current_blog_id();
-        $pt = get_post_type($post_id);
-        if (is_multisite()) {
-            delete_site_transient('post_statistics'.$id);
-        } else {
-            delete_transient('post_statistics'.$id);
-        }
+        $this->refresh_statistics('post_statistics');
     }
 
     /**
@@ -294,12 +306,6 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      */
     public function refresh_comment_statistics()
     {
-        $id = get_current_blog_id();
-
-        if (is_multisite()) {
-            delete_site_transient('comments_statistics'.$id);
-        } else {
-            delete_transient('comments_statistics'.$id);
-        }
+        $this->refresh_statistics('comments_statistics');
     }
 }
