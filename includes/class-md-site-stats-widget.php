@@ -173,6 +173,8 @@ class Md_Site_Stats_Widget
 
         $this->loader->add_action('widgets_init', $plugin_widget, 'register_widget');
         $this->loader->add_action('rest_api_init', $plugin_endpoints, 'register_route');
+        $this->loader->add_action('save_post', $plugin_endpoints, 'refresh_post_statistics');
+        $this->loader->add_action('wp_insert_comment', $plugin_endpoints, 'refresh_comment_statistics');
     }
 
     /**

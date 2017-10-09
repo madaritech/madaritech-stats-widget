@@ -26,7 +26,7 @@ jQuery(document).ready(function($) {
             	var res = '<div id="stats-widget">';
 
             	$.each(response.sites, function(key, item) { 
-            		table_general = '<table><tr><td>Users</td><td>Posts</td><td>Comments</td><td>Terms</td><td>Links</td></tr><tr><td>' + item.users + '</td><td>' + item.posts + '</td><td>' + item.comments + '</td><td>' + item.terms + '</td><td>' + item.links + '</td></tr></table>';
+            		table_general = '<table><tr><td>Users</td><td>Posts</td><td>Comments</td></tr><tr><td>' + item.users + '</td><td>' + item.posts + '</td><td>' + item.comments + '</td></tr></table>';
                     table_post = '<table><tr><em>Posts Details<\em></th></tr>' +
                                  '<tr><td>publish</td><td>' + item.post_publish + '</td><td>future</td><td>' + item.post_future + '</td></tr>' +
                                  '<tr><td>draft</td><td>' + item.post_draft + '</td><td>pending</td><td>' + item.post_pending + '</td></tr>' +
