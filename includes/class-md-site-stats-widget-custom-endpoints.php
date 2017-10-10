@@ -86,7 +86,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Calculates the statistics
+     * Calculates the statistics for single or multi site. Return the statistics in JSON format or an error messagge if it is impossible to get the statistics.
      *
      * @since 1.0.0
      *
@@ -150,7 +150,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Delete the transient on statistics refresh
+     * Calculates the statistic indexes.
      *
      * @since 1.0.0
      *
@@ -206,8 +206,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Retrieve the transient post statistics. If transient doesn't exists
-     * sets the transient.
+     * Retrieve the post statistics. The result are cached using transient: first get results from transient, but if transient doesn't exists, sets the transient.
      *
      * @since 1.0.0
      *
@@ -236,8 +235,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Retrieve the transient comment statistics. If transient doesn't exists
-     * sets the transient.
+     * Retrieve the transient comment statistics. The result are cached using transient: first get results from transient, but if transient doesn't exists, sets the transient.
      *
      * @since 1.0.0
      *
@@ -266,7 +264,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Delete the transient on post statistics refresh
+     * Delete the transient on post statistics refresh.
      *
      * @since 1.0.0
      *
@@ -284,7 +282,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Delete the transient on post statistics refresh
+     * Delete the transient on post statistics refresh.
      *
      * @since 1.0.0
      *
