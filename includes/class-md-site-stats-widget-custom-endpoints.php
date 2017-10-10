@@ -224,11 +224,13 @@ class Md_Site_Stats_Widget_Custom_Endpoints
         if (false === $posts) {
             $posts = $wpdb->get_results("SELECT count(*) as post_number, post_status FROM {$prefix}posts where post_type='post' group by post_status");
 
-            // Put the results in a transient. No expiration time.
-            if (is_multisite()) {
-                set_site_transient('post_statistics'.$id, $posts);
-            } else {
-                set_transient('post_statistics'.$id, $posts);
+            if (! is_null($posts)) {
+                // Put the results in a transient. No expiration time.
+                if (is_multisite()) {
+                    set_site_transient('post_statistics'.$id, $posts);
+                } else {
+                    set_transient('post_statistics'.$id, $posts);
+                }
             }
         }
         return $posts;
