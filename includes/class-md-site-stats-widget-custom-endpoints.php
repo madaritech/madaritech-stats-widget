@@ -211,10 +211,9 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      *
      * @access private
      * @param int $id The site id
-     * @param string $prefix The prefix of the current site
      * @return array|Wp_error The posts statistics.
      */
-    private function get_multisite_post_statistics($id, $prefix)
+    private function get_multisite_post_statistics($id)
     {
 
         // Check for transient. If none, then execute query
@@ -248,10 +247,9 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      *
      * @access private
      * @param int $id The site id
-     * @param string $prefix The prefix of the current site
      * @return array|Wp_error The posts statistics.
      */
-    private function get_singlesite_post_statistics($id, $prefix)
+    private function get_singlesite_post_statistics($id)
     {
         // Check for transient. If none, then execute WP_Query
         $posts = get_transient('post_statistics'.$id);
@@ -277,10 +275,9 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      *
      * @access private
      * @param int $id The site id
-     * @param string $prefix The prefix of the current site
      * @return array|Wp_error The comments number.
      */
-    private function get_comment_statistics($id, $prefix)
+    private function get_comment_statistics($id)
     {
         // Check for transient. If none, then execute WP_Query
         $comments = (is_multisite()) ? get_site_transient('comments_statistics'.$id) : get_transient('comments_statistics'.$id);
