@@ -20,17 +20,23 @@
  * @subpackage Md_Site_Stats_Widget/includes
  * @author     Madaritech <freelance@madaritech.com>
  */
-class Md_Site_Stats_Widget_Deactivator {
+class Md_Site_Stats_Widget_Deactivator
+{
 
-	/**
-	 * Short Description. (use period)
-	 *
-	 * Long Description.
-	 *
-	 * @since    1.0.0
-	 */
-	public static function deactivate() {
-
-	}
-
+    /**
+     * Delete transients.
+     *
+     * Delete all the transients created to cacche the statistics indexes.
+     *
+     * @since    1.0.0
+     */
+    public static function deactivate()
+    {
+        $transients = ['post_statistics','comments_statistics'];
+        foreach ($transients as $transient) {
+            if (get_transient($transient)) {
+                delete_transient($transient);
+            }
+        }
+    }
 }
