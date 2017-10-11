@@ -20,17 +20,18 @@
  * @subpackage Md_Site_Stats_Widget/includes
  * @author     Madaritech <freelance@madaritech.com>
  */
-class Md_Site_Stats_Widget_Activator {
+class Md_Site_Stats_Widget_Activator
+{
 
-	/**
-	 * Short Description. (use period)
-	 *
-	 * Long Description.
-	 *
-	 * @since    1.0.0
-	 */
-	public static function activate() {
+    /**
+     * Delete transients.
+     *
+     * Delete all the transients created to cacche the statistics indexes.
+     *
+     * @since    1.0.0
+     */
+    public static function activate()
+    {
 
-	}
-
+    }
 }

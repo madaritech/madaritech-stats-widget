@@ -32,10 +32,24 @@ class Md_Site_Stats_Widget_Deactivator
      */
     public static function deactivate()
     {
-        $transients = ['post_statistics','comments_statistics'];
-        foreach ($transients as $transient) {
-            if (get_transient($transient)) {
-                delete_transient($transient);
+        $transients = ['post_statistics','comment_statistics'];
+
+        if (is_multisite()) {
+            $sites = get_sites();
+            foreach ($sites as $key => $value) {
+                $id = $value->id;
+                foreach ($transients as $transient) {
+                    if (get_site_transient($transient.$id)) {
+                        delete_site_transient($transient.$id);
+                    }
+                }
+            }
+        } else {
+            $id = get_current_blog_id();
+            foreach ($transients as $transient) {
+                if (get_transient($transient.$id)) {
+                    delete_transient($transient.$id);
+                }
             }
         }
     }

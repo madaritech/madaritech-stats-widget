@@ -131,7 +131,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                     return $response;
                 }
                 
-                $sites_stats[$id] = $this->stats_index($url, $posts, $comments, $blog_users, $blogname, $blog_count);
+                $sites_stats[$id] = $this->stats_index($url, $posts, $comments->total_comments, $blog_users, $blogname, $blog_count);
             }
         } else {
             $id         = get_current_blog_id();
@@ -157,7 +157,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                 return $response;
             }
 
-            $sites_stats[$id] = $this->stats_index($url, $posts, $comments, $blog_users['total_users'], $blogname, $blog_count);
+            $sites_stats[$id] = $this->stats_index($url, $posts, $comments->total_comments, $blog_users['total_users'], $blogname, $blog_count);
         }
 
         $stats = array( 'blog_count' => $blog_count, 'sites' => $sites_stats);
@@ -257,7 +257,6 @@ class Md_Site_Stats_Widget_Custom_Endpoints
         $posts = get_transient('post_statistics'.$id);
 
         if (false === $posts) {
-            $posts = array();
             $posts = $this->get_posts_statistics_info();
 
             if (! is_wp_error($posts)) {
@@ -283,20 +282,19 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     private function get_multisite_comment_statistics($id)
     {
         // Check for transient. If none, then execute WP_Query
-        $comments = get_site_transient('comments_statistics'.$id);
+        $comments = get_site_transient('comment_statistics'.$id);
 
         if (false === $comments) {
             
             //Switch to the blog we need to get posts
             switch_to_blog($id);
             
-            $comments_obj = wp_count_comments();
-            $comments = $comments_obj->total_comments;
+            $comments = wp_count_comments();
 
             //Switch back to current blog
             restore_current_blog();
 
-            if (! empty($comments_obj)) {
+            if (! empty($comments)) {
                 // Put the results in a transient. No expiration time.
                 set_site_transient('comment_statistics'.$id, $comments);
             } else {
@@ -314,19 +312,17 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      *
      * @access private
      * @param int $id The site id
-     * @param string $prefix The prefix of the current site
      * @return array|Wp_error The comments number.
      */
     private function get_singlesite_comment_statistics($id)
     {
         // Check for transient. If none, then execute WP_Query
-        $comments = get_transient('comments_statistics'.$id);
+        $comments = get_transient('comment_statistics'.$id);
        
         if (false === $comments) {
-            $comments_obj = wp_count_comments();
+            $comments = wp_count_comments();
 
-            if (! empty($comments_obj)) {
-                $comments = $comments_obj->total_comments;
+            if (! empty($comments)) {
                 // Put the results in a transient. No expiration time.
                 set_transient('comment_statistics'.$id, $comments);
             } else {
@@ -378,7 +374,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      */
     public function refresh_comment_statistics()
     {
-        $this->refresh_statistics('comments_statistics');
+        $this->refresh_statistics('comment_statistics');
     }
 
     /**
