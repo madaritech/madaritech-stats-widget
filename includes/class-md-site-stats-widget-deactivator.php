@@ -26,7 +26,7 @@ class Md_Site_Stats_Widget_Deactivator
     /**
      * Delete transients.
      *
-     * Delete all the transients created to cacche the statistics indexes.
+     * Delete all the transients created to cache the statistics indexes.
      *
      * @since    1.0.0
      */
