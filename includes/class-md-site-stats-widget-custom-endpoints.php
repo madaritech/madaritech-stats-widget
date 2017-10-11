@@ -284,6 +284,8 @@ class Md_Site_Stats_Widget_Custom_Endpoints
         // Check for transient. If none, then execute WP_Query
         $comments = get_site_transient('comment_statistics'.$id);
 
+        $this->log->debug("Statistics comments [ comments :: " .var_export($comments, true)." ]...");
+        
         if (false === $comments) {
             
             //Switch to the blog we need to get posts

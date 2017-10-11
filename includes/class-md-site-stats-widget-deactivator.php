@@ -39,17 +39,13 @@ class Md_Site_Stats_Widget_Deactivator
             foreach ($sites as $key => $value) {
                 $id = $value->id;
                 foreach ($transients as $transient) {
-                    if (get_site_transient($transient.$id)) {
-                        delete_site_transient($transient.$id);
-                    }
+                    delete_site_transient($transient.$id);
                 }
             }
         } else {
             $id = get_current_blog_id();
             foreach ($transients as $transient) {
-                if (get_transient($transient.$id)) {
-                    delete_transient($transient.$id);
-                }
+                delete_transient($transient.$id);
             }
         }
     }
