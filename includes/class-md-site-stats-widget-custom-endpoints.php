@@ -121,17 +121,14 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                     $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
                     return $response;
                 }
+                
+                $sites_stats[$id] = $this->stats_index($id, $url, $posts, $comments, $blog_users, $blogname, $blog_count);
 
-                //Blog Comments
-                $comments = $this->get_comment_statistics($id);
-
-                if (is_wp_error($comments)) {
-                    $response = rest_ensure_response($comments);
+                if (is_wp_error($sites_stats[$id])) {
+                    $response = rest_ensure_response($sites_stats[$id]);
                     $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
                     return $response;
                 }
-                
-                $sites_stats[$id] = $this->stats_index($url, $posts, $comments, $blog_users, $blogname, $blog_count);
             }
         } else {
             $id         = get_current_blog_id();
@@ -148,16 +145,14 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                 $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
                 return $response;
             }
-            
-            //Blog Comments
-            $comments = $this->get_comment_statistics($id);
-            if (is_wp_error($comments)) {
-                $response = rest_ensure_response($err);
+
+            $sites_stats[] = $this->stats_index($id, $url, $posts, $comments, $blog_users['total_users'], $blogname, $blog_count);
+
+            if (is_wp_error($sites_stats[0])) {
+                $response = rest_ensure_response($sites_stats[$id]);
                 $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
                 return $response;
             }
-
-            $sites_stats[] = $this->stats_index($url, $posts, $comments, $blog_users['total_users'], $blogname, $blog_count);
         }
 
         $stats = array( 'blog_count' => $blog_count, 'sites' => $sites_stats);
@@ -182,8 +177,16 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      * @param int $blog_count The number of sites in the network (1 for single site).
      * @return array The statistics about posts and comments.
      */
-    private function stats_index($url, $posts, $comments, $blog_users, $blogname, $blog_count)
+    private function stats_index($id, $url, $posts, $comments, $blog_users, $blogname, $blog_count)
     {
+        //Blog Comments
+        $comments = $this->get_comment_statistics($id);
+
+        if (is_wp_error($comments)) {
+            $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
+            return $comments;
+        }
+
         //Recording site stats
         $site_stats = [
             'url' => $url,
