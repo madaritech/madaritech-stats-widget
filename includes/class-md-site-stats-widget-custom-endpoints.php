@@ -114,7 +114,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                 $blog_count = get_blog_count();
                 
                 //Blog Posts
-                $posts = $this->get_multisite_post_statistics($id, $prefix);
+                $posts = $this->get_multisite_post_statistics($id);
                 
                 if (is_wp_error($posts)) {
                     $response = rest_ensure_response($posts);
@@ -123,7 +123,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                 }
 
                 //Blog Comments
-                $comments = $this->get_comment_statistics($id, $prefix);
+                $comments = $this->get_comment_statistics($id);
 
                 if (is_wp_error($comments)) {
                     $response = rest_ensure_response($comments);
@@ -142,7 +142,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
             $blog_count = 1;
 
             //Blog Posts
-            $posts = $this->get_singlesite_post_statistics($id, $prefix);
+            $posts = $this->get_singlesite_post_statistics($id);
             if (is_wp_error($posts)) {
                 $response = rest_ensure_response($posts);
                 $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
@@ -150,7 +150,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
             }
             
             //Blog Comments
-            $comments = $this->get_comment_statistics($id, $prefix);
+            $comments = $this->get_comment_statistics($id);
             if (is_wp_error($comments)) {
                 $response = rest_ensure_response($err);
                 $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
@@ -289,10 +289,11 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                 $comments = $comments_obj->total_comments;
 
                 // Put the results in a transient. No expiration time.
-                if (is_multisite())
+                if (is_multisite()) {
                     set_site_transient('comment_statistics'.$id, $comments);
-                else
+                } else {
                     set_transient('comment_statistics'.$id, $comments);
+                }
             } else {
                 $err = new WP_Error('error', __('Retrieving comments failure', 'md_site_stats_widget'));
                 return $err;
