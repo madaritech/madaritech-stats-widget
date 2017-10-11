@@ -112,8 +112,26 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                 $blog_users = count(get_users("blog_id=$id"));
                 $blogname   = get_blog_details($id)->blogname;
                 $blog_count = get_blog_count();
+                
+                //Blog Posts
+                $posts = $this->get_multisite_post_statistics($id, $prefix);
+                
+                if (is_wp_error($posts)) {
+                    $response = rest_ensure_response($posts);
+                    $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
+                    return $response;
+                }
 
-                $sites_stats[$id] = $this->stats_index($url, $id, $prefix, $blog_users, $blogname, $blog_count);
+                //Blog Comments
+                $comments = $this->get_comment_statistics($id, $prefix);
+
+                if (is_wp_error($comments)) {
+                    $response = rest_ensure_response($comments);
+                    $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
+                    return $response;
+                }
+                
+                $sites_stats[$id] = $this->stats_index($url, $posts, $comments, $blog_users, $blogname, $blog_count);
             }
         } else {
             $id         = get_current_blog_id();
@@ -123,28 +141,29 @@ class Md_Site_Stats_Widget_Custom_Endpoints
             $blogname   = get_bloginfo('name');
             $blog_count = 1;
 
-            $sites_stats[] = $this->stats_index($url, $id, $prefix, $blog_users['total_users'], $blogname, $blog_count);
-        }
-
-        foreach ($sites_stats as $site_stats) {
-            if (empty($site_stats)) {
-                $err = new WP_Error('error', 'Statistics not available', array( 'status' => 404 ));
-                $response = rest_ensure_response($err);
-                    
-                if (Md_Site_Stats_Widget_Log_Service::is_enabled()) {
-                    $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
-                }
+            //Blog Posts
+            $posts = $this->get_singlesite_post_statistics($id, $prefix);
+            if (is_wp_error($posts)) {
+                $response = rest_ensure_response($posts);
+                $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
                 return $response;
             }
+            
+            //Blog Comments
+            $comments = $this->get_comment_statistics($id, $prefix);
+            if (is_wp_error($comments)) {
+                $response = rest_ensure_response($err);
+                $this->log->warn("Error in retrieving statistics [ response :: " .var_export($response, true)." ]...");
+                return $response;
+            }
+
+            $sites_stats[] = $this->stats_index($url, $posts, $comments, $blog_users['total_users'], $blogname, $blog_count);
         }
-        
 
         $stats = array( 'blog_count' => $blog_count, 'sites' => $sites_stats);
         $response = rest_ensure_response($stats);
         
-        if (Md_Site_Stats_Widget_Log_Service::is_enabled()) {
-            $this->log->trace("Statistics retrieved [ response :: " .var_export($response, true)." ]...");
-        }
+        $this->log->trace("Statistics retrieved [ response :: " .var_export($response, true)." ]...");
         
         return $response;
     }
@@ -163,46 +182,63 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      * @param int $blog_count The number of sites in the network (1 for single site).
      * @return array The statistics about posts and comments.
      */
-    private function stats_index($url, $id, $prefix, $blog_users, $blogname, $blog_count)
+    private function stats_index($url, $posts, $comments, $blog_users, $blogname, $blog_count)
     {
-        $posts = $this->get_post_statistics($id, $prefix);
-
-        $post_count['publish'] = 0;
-        $post_count['future'] = 0;
-        $post_count['draft'] = 0;
-        $post_count['pending'] = 0;
-        $post_count['private'] = 0;
-        $post_count['trash'] = 0;
-        $post_count['auto-draft'] = 0;
-        $post_count['inherit'] = 0;
-        $post_total = 0;
-
-        foreach ($posts as $post) {
-            $post_total = $post_total + intVal($post->post_number);
-            $post_count[$post->post_status] = $post->post_number;
-        }
-
-        //Blog comments
-        $comments = $this->get_comment_statistics($id, $prefix);
-
         //Recording site stats
         $site_stats = [
             'url' => $url,
             'users' => $blog_users,
             'blogname' => $blogname,
-            'posts' => $post_total,
-            'post_publish' => $post_count['publish'],
-            'post_future' => $post_count['future'],
-            'post_draft' => $post_count['draft'],
-            'post_pending' => $post_count['pending'],
-            'post_private' => $post_count['private'],
-            'post_trash' => $post_count['trash'],
-            'post_auto_draft' => $post_count['auto-draft'],
-            'post_inherit' => $post_count['inherit'],
+            'posts' => $posts['total'],
+            'post_publish' => $posts['publish'],
+            'post_future' => $posts['future'],
+            'post_draft' => $posts['draft'],
+            'post_pending' => $posts['pending'],
+            'post_private' => $posts['private'],
+            'post_trash' => $posts['trash'],
+            'post_auto_draft' => $posts['auto-draft'],
+            'post_inherit' => $posts['inherit'],
             'comments' => $comments
         ];
 
         return $site_stats;
+    }
+
+    /**
+     * Retrieve the post statistics in multisite context. Using WP_Query is more exphensive than using only one quey wpdb, because we need . The result are cached using transient: first get results from transient, but if transient doesn't exists, sets the transient.
+     *
+     * @since 1.0.0
+     *
+     * @access private
+     * @param int $id The site id
+     * @param string $prefix The prefix of the current site
+     * @return array|Wp_error The posts statistics.
+     */
+    private function get_multisite_post_statistics($id, $prefix)
+    {
+
+        // Check for transient. If none, then execute query
+        $posts = get_site_transient('post_statistics'.$id);
+
+        if (false === $posts) {
+            $posts = array();
+            
+            //Switch to the blog we need to get posts
+            switch_to_blog($id);
+            
+            $posts = $this->get_posts_statistics_info();
+
+            //Switch back to current blog
+            restore_current_blog();
+
+            if (! is_wp_error($posts)) {
+                // Put the results in a transient. No expiration time.
+                set_site_transient('post_statistics'.$id, $posts);
+            } else {
+                return $err;
+            }
+        }
+        return $posts;
     }
 
     /**
@@ -213,24 +249,22 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      * @access private
      * @param int $id The site id
      * @param string $prefix The prefix of the current site
-     * @return object The posts statistics.
+     * @return array|Wp_error The posts statistics.
      */
-    private function get_post_statistics($id, $prefix)
+    private function get_singlesite_post_statistics($id, $prefix)
     {
-        global $wpdb;
-
         // Check for transient. If none, then execute WP_Query
-        $posts = (is_multisite()) ? get_site_transient('post_statistics'.$id) : get_transient('post_statistics'.$id);
-        if (false === $posts) {
-            $posts = $wpdb->get_results("SELECT count(*) as post_number, post_status FROM {$prefix}posts where post_type='post' group by post_status");
+        $posts = get_transient('post_statistics'.$id);
 
-            if (! is_null($posts)) {
+        if (false === $posts) {
+            $posts = array();
+            $posts = $this->get_posts_statistics_info();
+
+            if (! is_wp_error($posts)) {
                 // Put the results in a transient. No expiration time.
-                if (is_multisite()) {
-                    set_site_transient('post_statistics'.$id, $posts);
-                } else {
-                    set_transient('post_statistics'.$id, $posts);
-                }
+                set_transient('post_statistics'.$id, $posts);
+            } else {
+                return $err;
             }
         }
         return $posts;
@@ -244,22 +278,27 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      * @access private
      * @param int $id The site id
      * @param string $prefix The prefix of the current site
-     * @return object The comments number.
+     * @return array|Wp_error The comments number.
      */
     private function get_comment_statistics($id, $prefix)
     {
-        global $wpdb;
-
         // Check for transient. If none, then execute WP_Query
         $comments = (is_multisite()) ? get_site_transient('comments_statistics'.$id) : get_transient('comments_statistics'.$id);
+       
         if (false === $comments) {
-            $comments = $wpdb->get_var("SELECT COUNT(*) FROM {$prefix}comments");
+            $comments_obj = wp_count_comments();
 
-            // Put the results in a transient. No expiration time.
-            if (is_multisite()) {
-                set_site_transient('comments_statistics'.$id, $comments);
+            if (! empty($comments_obj)) {
+                $comments = $comments_obj->total_comments;
+
+                // Put the results in a transient. No expiration time.
+                if (is_multisite())
+                    set_site_transient('comment_statistics'.$id, $comments);
+                else
+                    set_transient('comment_statistics'.$id, $comments);
             } else {
-                set_transient('comments_statistics'.$id, $comments);
+                $err = new WP_Error('error', __('Retrieving comments failure', 'md_site_stats_widget'));
+                return $err;
             }
         }
         return $comments;
@@ -307,5 +346,81 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     public function refresh_comment_statistics()
     {
         $this->refresh_statistics('comments_statistics');
+    }
+
+    /**
+     * Retrieves the posts information with WP_Query. The result is limited to 500. This can be set for optimization reasons.
+     *
+     * @since 1.0.0
+     *
+     * @access private
+     * @return WP_Error|array The posts statistics
+     */
+    private function get_posts_statistics_info()
+    {
+        $args = array(
+            'post_type' => 'post',
+            'post_status' => array('publish', 'future', 'draft', 'pending', 'private', 'trash', 'auto-draft', 'inherit'),
+            'posts_per_page' => 500,
+            'update_post_meta_cache' => false,
+            'update_post_term_cache' => false,
+            'no_found_rows' => true
+        );
+        
+        $wpq_posts = new WP_Query($args);
+
+        if (empty($wpq_posts)) {
+            $err = new WP_Error('error', __('Retrieving posts failure', 'md_site_stats_widget'));
+            return $err;
+        }
+
+        $posts['total']      = $wpq_posts->post_count;
+        $posts['publish']    = 0;
+        $posts['future']     = 0;
+        $posts['draft']      = 0;
+        $posts['pending']    = 0;
+        $posts['private']    = 0;
+        $posts['trash']      = 0;
+        $posts['auto-draft'] = 0;
+        $posts['inherit']    = 0;
+
+        while ($wpq_posts->have_posts()) {
+            $wpq_posts->next_post();
+
+            switch ($wpq_posts->post->post_status) {
+                case 'publish':
+                    $posts['publish'] += 1;
+                    break;
+                case 'future':
+                    $posts[''] += 1;
+                    break;
+                case 'draft':
+                    $posts['future'] += 1;
+                    break;
+                case 'pending':
+                    $posts['pending'] += 1;
+                    break;
+                case 'private':
+                    $posts['private'] += 1;
+                    break;
+                case 'trash':
+                    $posts['trash'] += 1;
+                    break;
+                case 'auto-draft':
+                    $posts['auto-draft'] += 1;
+                    break;
+                case 'inherit':
+                    $posts['inherit'] += 1;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // Reset Query & Post Data
+        wp_reset_query();
+        wp_reset_postdata();
+
+        return $posts;
     }
 }
