@@ -175,12 +175,11 @@ class Md_Site_Stats_Widget_Custom_Endpoints
      *
      * @access private
      * @param string $url The site url.
-     * @param int $id The site id.
-     * @param string $prefix prefix to build site's table name.
+     * @param array $posts The posts statistics.
+     * @param object $comments The comments object returned from wp_count_comments function.
      * @param int $blog_users The sites' user number.
      * @param string $blogname The site name.
      * @param int $blog_count The number of sites in the network (1 for single site).
-     * @return array The statistics about posts and comments.
      */
     private function stats_index($url, $posts, $comments, $blog_users, $blogname, $blog_count)
     {
@@ -205,13 +204,14 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Retrieve the post statistics in multisite context. Using WP_Query is more exphensive than using only one quey wpdb, because we need . The result are cached using transient: first get results from transient, but if transient doesn't exists, sets the transient.
+     * Retrieve the post statistics in multisite context.
+     *
+     * Use the transient to retrieve the posts statistics for each site of the network using the correct blog id. If transient is unkwown or expired it calculates the statistics, swithcing to the right blog site using the switch_to_blog function. Transient has been choosen to keep cache persistent.
      *
      * @since 1.0.0
      *
      * @access private
      * @param int $id The site id
-     * @param string $prefix The prefix of the current site
      * @return array|Wp_error The posts statistics.
      */
     private function get_multisite_post_statistics($id)
@@ -242,13 +242,14 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Retrieve the post statistics. The result are cached using transient: first get results from transient, but if transient doesn't exists, sets the transient.
+     * Retrieve the post statistics in singlesite context.
+     *
+     * Use the transient to retrieve the posts statistics for the current site (the id come from get_current_blog_id function. If transient is unkwown or expired it calculates the statistics, switching to the right blog site using the switch_to_blog function. Transient has been choosen to keep cache persistent.
      *
      * @since 1.0.0
      *
      * @access private
-     * @param int $id The site id
-     * @param string $prefix The prefix of the current site
+     * @param int $id The current site id
      * @return array|Wp_error The posts statistics.
      */
     private function get_singlesite_post_statistics($id)
@@ -270,14 +271,16 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Retrieve the transient comment statistics. The result are cached using transient: first get results from transient, but if transient doesn't exists, sets the transient.
+     *
+     * Retrieve the transient comments statistics in multisite context.
+     *
+     * Use the transient to retrieve the comments statistics for each site of the network using the correct blog id. If transient is unkwown or expired it calculates the statistics with wp_count_comments function, switching to the right blog site using the switch_to_blog function. Transient has been choosen to keep cache persistent.
      *
      * @since 1.0.0
      *
      * @access private
      * @param int $id The site id
-     * @param string $prefix The prefix of the current site
-     * @return array|Wp_error The comments number.
+     * @return array|Wp_error The comments number for site in mulsite network.
      */
     private function get_multisite_comment_statistics($id)
     {
@@ -308,7 +311,10 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Retrieve the transient comment statistics. The result are cached using transient: first get results from transient, but if transient doesn't exists, sets the transient.
+     *
+     * Retrieve the transient comment statistics in singlesite context.
+     *
+     * Use the transient to retrieve the comments statistics for the current site using the correct blog id. If transient is unkwown or expired it calculates the statistics with wp_count_comments function. Transient has been choosen to keep cache persistent.
      *
      * @since 1.0.0
      *
@@ -354,12 +360,11 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Delete the transient on post statistics refresh.
+     * Triggers the posts statistics refresh on insertion of new post (hook).
      *
      * @since 1.0.0
      *
      * @access private
-     * @param int $post_id The post id.
      */
     public function refresh_post_statistics($post_id)
     {
@@ -367,12 +372,11 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Delete the transient on comments statistics refresh
+     * Triggers the comments statistics refresh on insertion of new comment (hook).
      *
      * @since 1.0.0
      *
      * @access private
-     * @param int $post_id The post id.
      */
     public function refresh_comment_statistics()
     {
@@ -380,7 +384,10 @@ class Md_Site_Stats_Widget_Custom_Endpoints
     }
 
     /**
-     * Retrieves the posts information with WP_Query. The result is limited to 500. This can be set for optimization reasons.
+     *
+     * Retrieves the posts information with WP_Query.
+     *
+     * WP_Query is used to get all post of interest; the manipulation of post is made via php: we cout the different types of posts. The result is limited to 1000. This can be set for optimization reasons. Using WP_Query is less expensive than using only one query wpdb; WP_Query is also configured to be more performant.
      *
      * @since 1.0.0
      *
@@ -392,7 +399,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
         $args = array(
             'post_type' => 'post',
             'post_status' => array('publish', 'future', 'draft', 'pending', 'private', 'trash', 'auto-draft', 'inherit'),
-            'posts_per_page' => 500,
+            'posts_per_page' => 1000,
             'update_post_meta_cache' => false,
             'update_post_term_cache' => false,
             'no_found_rows' => true
