@@ -104,8 +104,15 @@ class Md_Site_Stats_Widget_Custom_Endpoints
         $sites_stats = array();
 
         if (is_multisite()) {
+            //Multisite
+
+            //Get info about all sites of the network
             $sites = get_sites();
+
+            //Cycle each site to get id and other informations
             foreach ($sites as $key => $value) {
+
+                //Get necessary site data
                 $url        = $value->domain.$value->path;
                 $id         = $value->id;
                 $prefix     = $wpdb->get_blog_prefix($id);
@@ -113,7 +120,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                 $blogname   = get_blog_details($id)->blogname;
                 $blog_count = get_blog_count();
                 
-                //Blog Posts
+                //Get the blog posts for the site
                 $posts = $this->get_multisite_post_statistics($id);
                 
                 if (is_wp_error($posts)) {
@@ -122,7 +129,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                     return $response;
                 }
 
-                //Blog Comments
+                //Get the blog comments for the site
                 $comments = $this->get_multisite_comment_statistics($id);
 
                 if (is_wp_error($comments)) {
@@ -131,9 +138,13 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                     return $response;
                 }
                 
+                //Elaborate data in the proper structure
                 $sites_stats[$id] = $this->stats_index($url, $posts, $comments->total_comments, $blog_users, $blogname, $blog_count);
             }
         } else {
+            //Single site
+
+            //Get necessary current site data
             $id         = get_current_blog_id();
             $url        = site_url();
             $prefix     = $wpdb->get_blog_prefix();
@@ -141,7 +152,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
             $blogname   = get_bloginfo('name');
             $blog_count = 1;
 
-            //Blog Posts
+            //Get the blog posts for the current site
             $posts = $this->get_singlesite_post_statistics($id);
             if (is_wp_error($posts)) {
                 $response = rest_ensure_response($posts);
@@ -149,7 +160,7 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                 return $response;
             }
             
-            //Blog Comments
+            //Get the blog comments for the current site
             $comments = $this->get_singlesite_comment_statistics($id);
             if (is_wp_error($comments)) {
                 $response = rest_ensure_response($err);
@@ -157,9 +168,11 @@ class Md_Site_Stats_Widget_Custom_Endpoints
                 return $response;
             }
 
+            //Elaborate data in the proper structure
             $sites_stats[$id] = $this->stats_index($url, $posts, $comments->total_comments, $blog_users['total_users'], $blogname, $blog_count);
         }
 
+        //Building final object to send response to client
         $stats = array( 'blog_count' => $blog_count, 'sites' => $sites_stats);
         $response = rest_ensure_response($stats);
         
