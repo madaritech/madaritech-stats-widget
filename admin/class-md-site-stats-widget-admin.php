@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -21,6 +20,7 @@
  * @author     Madaritech <freelance@madaritech.com>
  */
 class Md_Site_Stats_Widget_Admin {
+
 
 	/**
 	 * The ID of this plugin.
@@ -44,14 +44,12 @@ class Md_Site_Stats_Widget_Admin {
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
-	 * @param      string    $plugin_name       The name of this plugin.
-	 * @param      string    $version    The version of this plugin.
+	 * @param      string $plugin_name       The name of this plugin.
+	 * @param      string $version    The version of this plugin.
 	 */
 	public function __construct( $plugin_name, $version ) {
-
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
 	}
 
 	/**
@@ -74,7 +72,6 @@ class Md_Site_Stats_Widget_Admin {
 		 */
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/md-site-stats-widget-admin.css', array(), $this->version, 'all' );
-
 	}
 
 	/**
@@ -97,7 +94,5 @@ class Md_Site_Stats_Widget_Admin {
 		 */
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/md-site-stats-widget-admin.js', array( 'jquery' ), $this->version, false );
-
 	}
-
 }
