@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Fired during plugin deactivation
  *
@@ -20,33 +19,32 @@
  * @subpackage Md_Site_Stats_Widget/includes
  * @author     Madaritech <freelance@madaritech.com>
  */
-class Md_Site_Stats_Widget_Deactivator
-{
+class Md_Site_Stats_Widget_Deactivator {
 
-    /**
-     * Delete transients.
-     *
-     * Delete all the transients created to cache the statistics indexes.
-     *
-     * @since    1.0.0
-     */
-    public static function deactivate()
-    {
-        $transients = ['post_statistics','comment_statistics'];
 
-        if (is_multisite()) {
-            $sites = get_sites();
-            foreach ($sites as $key => $value) {
-                $id = $value->id;
-                foreach ($transients as $transient) {
-                    delete_site_transient($transient.$id);
-                }
-            }
-        } else {
-            $id = get_current_blog_id();
-            foreach ($transients as $transient) {
-                delete_transient($transient.$id);
-            }
-        }
-    }
+	/**
+	 * Delete transients.
+	 *
+	 * Delete all the transients created to cache the statistics indexes.
+	 *
+	 * @since    1.0.0
+	 */
+	public static function deactivate() {
+		$transients = [ 'post_statistics', 'comment_statistics' ];
+
+		if ( is_multisite() ) {
+			$sites = get_sites();
+			foreach ( $sites as $key => $value ) {
+				$id = $value->id;
+				foreach ( $transients as $transient ) {
+					delete_site_transient( $transient . $id );
+				}
+			}
+		} else {
+			$id = get_current_blog_id();
+			foreach ( $transients as $transient ) {
+				delete_transient( $transient . $id );
+			}
+		}
+	}
 }
