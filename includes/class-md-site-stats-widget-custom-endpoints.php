@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * The file that defines the custom endpoints class
@@ -111,7 +111,6 @@ class Md_Site_Stats_Widget_Custom_Endpoints
 
             //Cycle each site to get id and other informations
             foreach ($sites as $key => $value) {
-
                 //Get necessary site data
                 $url        = $value->domain.$value->path;
                 $id         = $value->id;
@@ -303,7 +302,6 @@ class Md_Site_Stats_Widget_Custom_Endpoints
         $this->log->debug("Statistics comments [ comments :: " .var_export($comments, true)." ]...");
         
         if (false === $comments) {
-            
             //Switch to the blog we need to get posts
             switch_to_blog($id);
             
